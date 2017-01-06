@@ -1,6 +1,7 @@
 var Model = {
   grid: [],
   cardsArray: [],
+  flipped: 0,
   // score
 
   gridSetup: function(size){
@@ -33,33 +34,59 @@ var Model = {
   // getGridSize: function() {
   //   return this.grid.length;
   // },
+
+  cardStates: function(){
+    if(this.flipped === 1 ){
+      return true
+    }else if(this.flipped === 2){
+      this.flipped = 0
+      return false
+    }
+  }
 };
 
 var View = {
   $container: $('.container'),
+  
+  init: function(size){
+    this.renderGrid(size)
+    this.$container.on("click", ".card", Controller.cardClicked)
+  },
 
   renderGrid: function(size) {
     for(var col = 0; col < size; col++){
       for (var cell = 0; cell < size; cell++) {
-        var $card = $('<span class="card">');
+        var $card = $('<div class="card">');
         this.$container.append($card);
         // TODO remove the text!
-        $card.attr({'data-x': col, 'data-y': cell}).text("x: " + col + ", y: " + cell);
+        $card.attr({'data-x': col, 'data-y': cell});
       }
       this.$container.append('<br>');
     }
   },
 
-  cardClicked: function() {
-
+  cardClicked: function(event) {
+    var x = $(event.target).data("x")
+    var y = $(event.target).data("y")
+    View.flipCard(x, y)
   },
 
-  revealCard: function(x,y) {
-    console.log("x:"+x);
-    console.log("y:"+y);
+  flipCard: function(x,y) {
     var $card = $('.card').filter("[data-x='" + x +"']").filter("[data-y='" + y +"']");
-    console.log($card);
-    return $card;
+    var value = Controller.getCardValue(x, y)
+    $card.addClass("flipped")
+    $card.append(value)
+   
+    
+  },
+
+  revertState: function(){
+    setTimeout(this.unflipCard, 3000);
+  },
+
+  unflipCard: function(){
+    var $flipped = $(".flipped")
+    $flipped.removeClass("flipped").text("");
   }
 
 
@@ -68,12 +95,31 @@ var View = {
 var Controller = {
   init: function(size) {
     Model.gridSetup(size);
-    View.renderGrid(size);
+    View.init(size);
   },
+
+  getCardValue: function(x,y){
+    return Model.getCardValue(x, y);
+  },
+
+  cardClicked: function(e){
+    Model.flipped++
+    if(Model.cardStates()){
+      View.cardClicked(e)
+      // this runs when we have one card, it flips it
+    }else if(Model.cardStates() === false){
+      // this is run with two+ cards
+      View.cardClicked(e)
+      View.revertState()
+      
+    }
+
+  }
 };
 
 $(document).ready(function() {
   Controller.init(4);
+
 });
 
 /*
