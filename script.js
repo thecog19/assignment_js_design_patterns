@@ -26,8 +26,8 @@ var Model = {
     }
   },
 
-  getCardValue: function(cell,col) {
-    return this.grid[col][cell];
+  getCardValue: function(x, y) {
+    return this.grid[x][y];
   },
 
   // getGridSize: function() {
@@ -43,11 +43,26 @@ var View = {
       for (var cell = 0; cell < size; cell++) {
         var $card = $('<span class="card">');
         this.$container.append($card);
-        $card.attr({'data-x': col, 'data-y': cell});
+        // TODO remove the text!
+        $card.attr({'data-x': col, 'data-y': cell}).text("x: " + col + ", y: " + cell);
       }
       this.$container.append('<br>');
     }
   },
+
+  cardClicked: function() {
+
+  },
+
+  revealCard: function(x,y) {
+    console.log("x:"+x);
+    console.log("y:"+y);
+    var $card = $('.card').filter("[data-x='" + x +"']").filter("[data-y='" + y +"']");
+    console.log($card);
+    return $card;
+  }
+
+
 };
 
 var Controller = {
